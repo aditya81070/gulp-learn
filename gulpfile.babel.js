@@ -64,9 +64,7 @@ const styles = () => {
         'properties-order': 'alphabetical'
       })
     ]))
-    .pipe(cleanCSS({
-      format: 'beautify'
-    }))
+    .pipe(cleanCSS())
     .pipe(gulp.dest(paths.styles.dest))
 }
 
@@ -115,6 +113,6 @@ const watchFiles = () => {
 }
 
 const dev = gulp.series(clean, scripts, styles, images, copyHtml, serve, watchFiles)
-
+const build = gulp.series(clean, gulp.parallel(scripts, styles, images, copyHtml))
 export default dev
-export { copyHtml, serve, reload, watchFiles, styles, scripts, images }
+export { build }
