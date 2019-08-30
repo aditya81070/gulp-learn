@@ -9,7 +9,7 @@ import cleanCSS from 'gulp-clean-css'
 import babel from 'gulp-babel'
 import uglify from 'gulp-uglify'
 import eslint from 'gulp-eslint'
-
+import imagemin from 'gulp-imagemin'
 const server = browserSync.create()
 
 const paths = {
@@ -24,6 +24,10 @@ const paths = {
   scripts: {
     src: 'src/assets/scripts/**/*.js',
     dest: 'dist/assets/scripts/'
+  },
+  images: {
+    src: 'src/assets/img/**',
+    dest: 'dist/assets/img/'
   }
 }
 
@@ -85,13 +89,32 @@ const scripts = () => {
     .pipe(gulp.dest(paths.scripts.dest))
 }
 
+const images = () => {
+  return gulp.src(paths.images.src)
+    .pipe(imagemin([
+      imagemin.gifsicle({
+        interlaced: true,
+        optimizationLevel: 3
+      }),
+      imagemin.jpegtran({
+        progressive: true
+      }),
+      imagemin.optipng({
+        optimizationLevel: 5
+      })
+    ], {
+      verbose: true
+    }))
+    .pipe(gulp.dest(paths.images.dest))
+}
 const watchFiles = () => {
   gulp.watch(paths.html.src, gulp.series(copyHtml, reload))
   gulp.watch(paths.styles.src, gulp.series(styles, reload))
   gulp.watch(paths.scripts.src, gulp.series(scripts, reload))
+  gulp.watch(paths.images.src, gulp.series(images, reload))
 }
 
-const dev = gulp.series(clean, styles, scripts, copyHtml, serve, watchFiles)
+const dev = gulp.series(clean, scripts, styles, images, copyHtml, serve, watchFiles)
 
 export default dev
-export { copyHtml, serve, reload, watchFiles, styles, scripts }
+export { copyHtml, serve, reload, watchFiles, styles, scripts, images }
