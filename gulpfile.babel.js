@@ -6,6 +6,8 @@ import postcss from 'gulp-postcss'
 import autoprefixer from 'autoprefixer'
 import sorting from 'postcss-sorting'
 import cleanCSS from 'gulp-clean-css'
+import babel from 'gulp-babel'
+import uglify from 'gulp-uglify'
 
 const server = browserSync.create()
 
@@ -17,6 +19,10 @@ const paths = {
   styles: {
     src: 'src/assets/styles/**/*.css',
     dest: 'dist/assets/styles/'
+  },
+  scripts: {
+    src: 'src/assets/scripts/**/*.js',
+    dest: 'dist/assets/scripts/'
   }
 }
 
@@ -59,12 +65,24 @@ const styles = () => {
     .pipe(gulp.dest(paths.styles.dest))
 }
 
+const scripts = () => {
+  return gulp.src(paths.scripts.src)
+    .pipe(babel({
+      presets: ['@babel/env']
+    }))
+    .pipe(uglify({
+      warnings: 'verbose'
+    }))
+    .pipe(gulp.dest(paths.scripts.dest))
+}
+
 const watchFiles = () => {
   gulp.watch(paths.html.src, gulp.series(copyHtml, reload))
   gulp.watch(paths.styles.src, gulp.series(styles, reload))
+  gulp.watch(paths.scripts.src, gulp.series(scripts, reload))
 }
 
-const dev = gulp.series(clean, copyHtml, styles, serve, watchFiles)
+const dev = gulp.series(clean, styles, scripts, copyHtml, serve, watchFiles)
 
 export default dev
-export { copyHtml, serve, reload, watchFiles, styles }
+export { copyHtml, serve, reload, watchFiles, styles, scripts }
