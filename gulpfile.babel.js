@@ -8,6 +8,7 @@ import sorting from 'postcss-sorting'
 import cleanCSS from 'gulp-clean-css'
 import babel from 'gulp-babel'
 import uglify from 'gulp-uglify'
+import eslint from 'gulp-eslint'
 
 const server = browserSync.create()
 
@@ -70,9 +71,17 @@ const scripts = () => {
     .pipe(babel({
       presets: ['@babel/env']
     }))
-    .pipe(uglify({
-      warnings: 'verbose'
+    .pipe(eslint({
+      baseConfig: {
+        extends: ['eslint:recommended']
+      },
+      envs: ['browser'],
+      rules: {
+        semi: 2
+      }
     }))
+    .pipe(eslint.failOnError())
+    .pipe(uglify())
     .pipe(gulp.dest(paths.scripts.dest))
 }
 
